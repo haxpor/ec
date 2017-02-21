@@ -1,6 +1,15 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import { Link } from 'react-router'
+import logo from './head.jpg';
 import './App.css';
+
+import 'weui';
+import 'react-weui/lib/react-weui.min.css';
+
+import MainGrid from './ec/components/maingrid';
+
+import WeUI from 'react-weui';
+const {Button} = WeUI;
 
 class App extends Component {
   render() {
@@ -8,11 +17,10 @@ class App extends Component {
       <div className="App">
         <div className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
+          <h2>ec</h2>
         </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+        <MainGrid />
+        <Button onClick={()=>{window.location='/maingrid';}}>Click me</Button><Link to={`/maingrid`}>MainGrid</Link>
       </div>
     );
   }
