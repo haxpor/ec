@@ -3,7 +3,7 @@ import WeUI from 'react-weui';
 import 'weui';
 import 'react-weui/lib/react-weui.min.css';
 
-import issue_icon from '../../assets/images/ic_assignment_turned_in_black_24px.svg';
+import issue_icon from '../../../public/images/ic_assignment_turned_in_black_24px.svg';
 import Page from './page/page';
 
 class Issues extends Component {

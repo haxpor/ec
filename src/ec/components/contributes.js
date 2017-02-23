@@ -3,16 +3,17 @@ import WeUI from 'react-weui';
 import 'weui';
 import 'react-weui/lib/react-weui.min.css';
 
-import contribute_icon from '../../assets/images/ic_group_black_24px.svg';
+import contribute_icon from '../../../public/images/ic_group_black_24px.svg';
+import Page from './page/page';
 
-class MainGrid extends Component {
+class Contributes extends Component {
   render() {
     return (
-      <div>
-        <Grids data={data}/>
-      </div>
+      <Page className="contributes" title="Contributes" subTitle="See all forked and contributed projects">
+        
+      </Page>
     );
   }
 }
 
-export default MainGrid;
+export default Contributes;

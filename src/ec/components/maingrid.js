@@ -3,10 +3,10 @@ import WeUI from 'react-weui';
 import 'weui';
 import 'react-weui/lib/react-weui.min.css';
 
-import issue_icon from '../../assets/images/ic_assignment_turned_in_black_24px.svg';
-import project_icon from '../../assets/images/ic_apps_black_24px.svg';
-import contribute_icon from '../../assets/images/ic_group_black_24px.svg';
-import blog_icon from '../../assets/images/ic_insert_drive_file_black_24px.svg';
+import issue_icon from '../../../public/images/ic_assignment_turned_in_black_24px.svg';
+import project_icon from '../../../public/images/ic_apps_black_24px.svg';
+import contribute_icon from '../../../public/images/ic_group_black_24px.svg';
+import blog_icon from '../../../public/images/ic_insert_drive_file_black_24px.svg';
 
 const {Grids} = WeUI;
 
