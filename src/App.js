@@ -20,7 +20,6 @@ class App extends Component {
           <h2>ec</h2>
         </div>
         <MainGrid />
-        <Button onClick={()=>{window.location='/maingrid';}}>Click me</Button><Link to={`/maingrid`}>MainGrid</Link>
       </div>
     );
   }
