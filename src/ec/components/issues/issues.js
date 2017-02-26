@@ -42,8 +42,8 @@ class Issues extends Component {
 
       let createdAtDate = new Date(item.created_at);
       let updatedAtDate = new Date(item.updated_at);
-      var locale_createdAt = createdAtDate.toLocaleDateString() + " " + createdAtDate.toLocaleTimeString();
-      var locale_updatedAt = updatedAtDate.toLocaleDateString() + " " + updatedAtDate.toLocaleTimeString();
+      var locale_createdAt = createdAtDate.toLocaleDateString();
+      var locale_updatedAt = updatedAtDate.toLocaleDateString();
 
       return (
         <MediaBox type="text" >
