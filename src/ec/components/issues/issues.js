@@ -6,20 +6,32 @@ import { Panel,
 	MediaBoxTitle, 
 	MediaBoxDescription, 
 	MediaBoxInfo, 
-	MediaBoxInfoMeta
+	MediaBoxInfoMeta,
+  Flex,
+  FlexItem,
+  Icon
 } from 'react-weui';
 
 import Page from '../../core/page/page';
 import issue_icon from '../../../../public/images/ic_assignment_turned_in_black_24px.svg';
+
+import '../../core/icons/icons.css';
+
 import IssuesManager from '../../util/issuesManager';
 import { Bar } from 'react-chartjs-2';
 
+const IconBox = (props) => (
+  <div className="icon-box">
+    {props.icon}
+    <div className="icon-box__ctn">
+      <h3 className="icon-box__title">{props.title}</h3>
+      <p className="icon-box__desc">{props.desc}</p>
+    </div>
+  </div>
+)
+
 const aStyle = {
   color: 'black'
-}
-
-var chartDataSets = {
-  
 }
 
 class Issues extends Component {
@@ -115,17 +127,48 @@ class Issues extends Component {
     );
   }
 
+  renderNumberSummary(numberOfOpenIssues, numberOfClosedIssues) {
+    var closedTitle = "Closed " + numberOfClosedIssues;
+    var openTitle = "Open " + numberOfOpenIssues;
+
+    return (
+      <Flex>
+        <FlexItem>
+          <IconBox
+            icon={<Icon size="large" value="success" />}
+            title={closedTitle}
+            desc="You have successfully closed issues!"
+          />
+        </FlexItem>
+        <FlexItem>
+          <IconBox
+            icon={<Icon size="large" value="warn" />}
+            title={openTitle}
+            desc="You still have open issues to work on."
+          />
+        </FlexItem>
+      </Flex>
+    );
+  }
+
   render() {
     const {children} = this.props;
 
     return (
       <Page className="issues" title="Issues" subTitle="See all open/closed issues">
         <Panel>
+          <PanelBody>
+            <MediaBox type="text">
+              {this.state.openIssuesJson != null && this.state.closedIssuesJson != null ? this.renderNumberSummary(this.state.openIssuesJson.length, this.state.closedIssuesJson.length) : "" }
+            </MediaBox>
+          </PanelBody>
+        </Panel>
+        <Panel>
         	<PanelHeader>
         		Latest 5 Issues
         	</PanelHeader>
         	<PanelBody>
-        		{this.state.openIssuesJson != null && this.state.openIssuesJson.length > 0 ? this.renderLatestFiveOpenIssues(this.state.openIssuesJson) : ""}
+        		{this.state.openIssuesJson != null && this.state.openIssuesJson.length > 0 ? this.renderLatestFiveOpenIssues(this.state.openIssuesJson) : "" }
         	</PanelBody>
         </Panel>
         <Panel>
@@ -134,7 +177,7 @@ class Issues extends Component {
           </PanelHeader>
           <PanelBody>
             <MediaBox type="text">
-              {this.state.chartDataSets.completeness != null ? this.renderCompletenessChart(this.state.chartDataSets.completeness) : ""}
+              {this.state.chartDataSets.completeness != null ? this.renderCompletenessChart(this.state.chartDataSets.completeness) : "" }
             </MediaBox>
           </PanelBody>
         </Panel>
