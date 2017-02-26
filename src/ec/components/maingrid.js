@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import { Grids } from 'react-weui';
-import 'weui';
-import 'react-weui/lib/react-weui.min.css';
 
 import issue_icon from '../../../public/images/ic_assignment_turned_in_black_24px.svg';
 import project_icon from '../../../public/images/ic_apps_black_24px.svg';

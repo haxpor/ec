@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
-import WeUI from 'react-weui';
-import 'weui';
-import 'react-weui/lib/react-weui.min.css';
+import { Panel, 
+	PanelHeader, 
+	PanelBody, 
+	MediaBox, 
+	MediaBoxTitle, 
+	MediaBoxDescription, 
+	MediaBoxInfo, 
+	MediaBoxInfoMeta
+} from 'react-weui';
 
-import issue_icon from '../../../public/images/ic_assignment_turned_in_black_24px.svg';
 import Page from './page/page';
+import issue_icon from '../../../public/images/ic_assignment_turned_in_black_24px.svg';
 
 class Issues extends Component {
   render() {
