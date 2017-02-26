@@ -173,7 +173,7 @@ class Issues extends Component {
         </Panel>
         <Panel>
           <PanelHeader>
-            Completness Chart
+            Completeness Chart
           </PanelHeader>
           <PanelBody>
             <MediaBox type="text">
