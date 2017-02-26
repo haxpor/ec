@@ -17,4 +17,4 @@ yarn-debug.log*
 yarn-error.log*
 
 # dynamic data
-public/data/issues.json
+public/gens/issues.json
