@@ -12,9 +12,14 @@ import { Panel,
 import Page from '../../core/page/page';
 import issue_icon from '../../../../public/images/ic_assignment_turned_in_black_24px.svg';
 import IssuesManager from '../../util/issuesManager';
+import { Bar } from 'react-chartjs-2';
 
 const aStyle = {
   color: 'black'
+}
+
+var chartDataSets = {
+  
 }
 
 class Issues extends Component {
@@ -23,14 +28,41 @@ class Issues extends Component {
     super(props);
     this.state = {
       openIssuesJson: null,
-      closedIssuesJson: null
+      closedIssuesJson: null,
+      chartDataSets: {}
     }
   }
 
   componentWillMount() {
     IssuesManager.fetch()
       .then((result) => {
-        this.setState({ openIssuesJson: IssuesManager.openIssuesJson });
+
+        let completeness = (IssuesManager.closedIssuesJson.length / IssuesManager.totalIssues * 100).toFixed(2);
+
+        this.setState({ 
+          openIssuesJson: IssuesManager.openIssuesJson,
+          closedIssuesJson: IssuesManager.closedIssuesJson,
+          chartDataSets: {
+            completeness: {
+              labels: ['All Issues'],
+              datasets: [
+                {
+                  label: 'Completeness ' + completeness + '%',
+                  backgroundColor: 'rgba(66,244,66,0.2)',
+                  borderColor: 'rgba(66,244,66,1)',
+                  borderWidth: 1,
+                  hoverBackgroundColor: 'rgba(66,244,66,0.4)',
+                  hoverBorderColor: 'rgba(66,244,66,1)',
+                  data: [completeness]
+                }
+              ]
+            },
+
+            efficiency: {
+
+            }
+          }
+        });
 
       }, (e) => {
         console.log(e + ":" + e.message);
@@ -46,7 +78,7 @@ class Issues extends Component {
       var locale_updatedAt = updatedAtDate.toLocaleDateString();
 
       return (
-        <MediaBox type="text" >
+        <MediaBox type="text" key={i}>
           <a href={item.html_url} style={aStyle}>
             <MediaBoxTitle>
               {item.title}
@@ -65,6 +97,24 @@ class Issues extends Component {
     });
 	}
 
+  renderCompletenessChart(datasets) {
+    return (
+      <Bar
+        data={datasets}
+        width={200}
+        height={70}
+      />
+    );
+  }
+
+  renderEfficiencyChart() {
+    return (
+      <MediaBox type="text">
+        Test
+      </MediaBox>
+    );
+  }
+
   render() {
     const {children} = this.props;
 
@@ -75,8 +125,26 @@ class Issues extends Component {
         		Latest 5 Issues
         	</PanelHeader>
         	<PanelBody>
-        		{this.state.openIssuesJson != null && this.state.openIssuesJson.length > 0 ? this.renderLatestFiveOpenIssues(this.state.openIssuesJson) : children}
+        		{this.state.openIssuesJson != null && this.state.openIssuesJson.length > 0 ? this.renderLatestFiveOpenIssues(this.state.openIssuesJson) : ""}
         	</PanelBody>
+        </Panel>
+        <Panel>
+          <PanelHeader>
+            Completness Chart
+          </PanelHeader>
+          <PanelBody>
+            <MediaBox type="text">
+              {this.state.chartDataSets.completeness != null ? this.renderCompletenessChart(this.state.chartDataSets.completeness) : ""}
+            </MediaBox>
+          </PanelBody>
+        </Panel>
+        <Panel>
+          <PanelHeader>
+            Efficiency Chart
+          </PanelHeader>
+          <PanelBody>
+            {this.renderEfficiencyChart()}
+          </PanelBody>
         </Panel>
       </Page>
     );
