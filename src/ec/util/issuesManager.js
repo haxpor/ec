@@ -2,8 +2,6 @@ import bfet from 'bfet';
 
 // IssuesManager parse issues.json and feed data for components that need it
 class IssuesManager {
-  static isParsed = false;
-
   static totalIssues;
   static totalOpenIssues;
   static totalClosedIssues;
@@ -25,8 +23,10 @@ class IssuesManager {
               this.openIssuesJson = r1;
               this.closedIssuesJson = r2;
 
-              // parse all result
-              this.parse();
+              // set received values
+              this.totalOpenIssues = this.openIssuesJson.length;
+              this.totalClosedIssues = this.closedIssuesJson.length;
+              this.totalIssues = this.totalOpenIssues + this.totalClosedIssues;
 
               // now everything alright, set that we've parsed it
               this.isParsed = true;
@@ -47,16 +47,6 @@ class IssuesManager {
   static forceParse() {
     this.isParsed = false;
     this.fetch();
-  }
-
-  static parse() {
-    this._findTotalIssues();
-  }
-
-  static _findTotalIssues() {
-    this.totalOpenIssues = this.openIssuesJson.length;
-    this.totalClosedIssues = this.closedIssuesJson.length;
-    this.totalIssues = this.totalOpenIssues + this.totalClosedIssues;
   }
 }
 

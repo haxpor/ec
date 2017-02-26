@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router'
 import logo from './head.jpg';
 import './App.css';
 

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import WeUI from 'react-weui';
 
-import project_icon from '../../../public/images/ic_apps_black_24px.svg';
-import Page from './page/page';
+import project_icon from '../../../../public/images/ic_apps_black_24px.svg';
+import Page from '../../core/page/page';
 
 class Projects extends Component {
   render() {

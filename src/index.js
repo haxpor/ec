@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App.js';
-import Issues from './ec/components/issues';
-import Projects from './ec/components/projects';
-import Contributes from './ec/components/contributes';
+import Issues from './ec/components/issues/issues';
+import Projects from './ec/components/projects/projects';
+import Contributes from './ec/components/contributes/contributes';
 import './index.css';
 
 import { Router, Route, browserHistory } from 'react-router'
