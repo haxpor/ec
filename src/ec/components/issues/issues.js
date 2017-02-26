@@ -39,6 +39,12 @@ class Issues extends Component {
 
 	renderLatestFiveOpenIssues(openIssues) {
     return openIssues.slice(0, 5).map((item, i) => {
+
+      let createdAtDate = new Date(item.created_at);
+      let updatedAtDate = new Date(item.updated_at);
+      var locale_createdAt = createdAtDate.toLocaleDateString() + " " + createdAtDate.toLocaleTimeString();
+      var locale_updatedAt = updatedAtDate.toLocaleDateString() + " " + updatedAtDate.toLocaleTimeString();
+
       return (
         <MediaBox type="text" >
           <a href={item.html_url} style={aStyle}>
@@ -49,9 +55,9 @@ class Issues extends Component {
               {item.body == "" ? "no description" : item.body}
             </MediaBoxDescription>
             <MediaBoxInfo>
-              <MediaBoxInfoMeta>WeUI</MediaBoxInfoMeta>
-              <MediaBoxInfoMeta>2016-8-8</MediaBoxInfoMeta>
-              <MediaBoxInfoMeta extra>More</MediaBoxInfoMeta>
+              <MediaBoxInfoMeta>{item.repository.name}</MediaBoxInfoMeta>
+              <MediaBoxInfoMeta extra>created: {locale_createdAt}</MediaBoxInfoMeta>
+              <MediaBoxInfoMeta>updated: {locale_updatedAt}</MediaBoxInfoMeta>
             </MediaBoxInfo>
           </a>
         </MediaBox>
