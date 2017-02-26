@@ -8,8 +8,7 @@ import 'react-weui/lib/react-weui.min.css';
 
 import MainGrid from './ec/components/maingrid';
 
-import WeUI from 'react-weui';
-const {Button} = WeUI;
+import { Button } from 'react-weui';
 
 class App extends Component {
   render() {

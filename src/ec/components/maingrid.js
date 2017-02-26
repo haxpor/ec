@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import WeUI from 'react-weui';
+import { Grids } from 'react-weui';
 import 'weui';
 import 'react-weui/lib/react-weui.min.css';
 
@@ -9,8 +9,6 @@ import contribute_icon from '../../../public/images/ic_group_black_24px.svg';
 import blog_icon from '../../../public/images/ic_insert_drive_file_black_24px.svg';
 
 import IssuesManager from '../util/issuesManager';
-
-const {Grids} = WeUI;
 
 const data = [
   {

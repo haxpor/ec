@@ -6,7 +6,7 @@ import Projects from './ec/components/projects';
 import Contributes from './ec/components/contributes';
 import './index.css';
 
-import { Router, Route, Link, browserHistory } from 'react-router'
+import { Router, Route, browserHistory } from 'react-router'
 
 ReactDOM.render(
   <Router history={browserHistory}>
