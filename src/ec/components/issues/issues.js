@@ -11,6 +11,9 @@ import { Panel,
   FlexItem,
   Icon,
   FormCell,
+  Cells,
+  Cell,
+  CellFooter,
   CellHeader,
   CellBody,
   Label,
@@ -37,6 +40,7 @@ const IconBox = (props) => (
 
 const kGapLastIndex = 3;
 const kSelectBackYears = 2;
+const kMSPerDay = 1000 * 3600 * 24;
 
 const aStyle = {
   color: 'black'
@@ -50,7 +54,11 @@ class Issues extends Component {
       openIssuesJson: null,
       closedIssuesJson: null,
       chartDataSets: {},
-      currentYear: 0
+      currentYear: 0,
+      efficiencyChartStatistics: {
+        avgDaysToCloseIssue: 0,
+        avgDaysOpenIssuesWaitingToBeClosed: 0
+      }
     }
   }
 
@@ -143,9 +151,52 @@ class Issues extends Component {
     closedIssuesDataSets = closedIssuesDataSets.slice(0, endSlicingIndex);
     closedIssueCreatedDateDataSets = closedIssueCreatedDateDataSets.slice(0, endSlicingIndex);
 
+    // calculate efficiency statistics
+    // the calculation here doesn't limit that issues should be created within this current year
+    // it can be in another year but closed in this year
+    var avgDaysToCloseIssue = 0;
+    var daysTilClosed = [];
+
+    for (var i=0; i<IssuesManager.closedIssuesJson.length; i++) {
+      var item = IssuesManager.closedIssuesJson[i];
+
+      let closedAtDate = new Date(item.closed_at);
+      if (closedAtDate.getFullYear() != year)
+        continue;
+
+      let createdAtDate = new Date(item.created_at);
+      // find difference in days between 2 dates
+      // then save into array
+      daysTilClosed.push(this.dateDiffInDays(createdAtDate, closedAtDate));
+    }
+    var avgDaysTilCloseIssue = daysTilClosed.length > 0 ? (daysTilClosed.reduce(function(prev, curr) {
+      return prev + curr;
+    }) / daysTilClosed.length).toFixed(2) : 0;
+
+    // calculate days for open issues waiting to be closed (still go on)
+    var daysWaitingToBeClosed = [];
+
+    for (var i=0; i<IssuesManager.openIssuesJson.length; i++) {
+      var item = IssuesManager.openIssuesJson[i];
+
+      let createdAtDate = new Date(item.created_at);
+      if (createdAtDate.getFullYear() != year)
+        continue;
+
+      let now = new Date();
+      daysWaitingToBeClosed.push(this.dateDiffInDays(createdAtDate, now));
+    }
+    var avgDaysOpenIssuesWaitingToBeClosed = daysWaitingToBeClosed.length > 0 ? (daysWaitingToBeClosed.reduce(function(prev, curr) {
+      return prev + curr;
+    }) / daysWaitingToBeClosed.length).toFixed(2) : 0;
+
     this.setState({ 
       openIssuesJson: IssuesManager.openIssuesJson,
       closedIssuesJson: IssuesManager.closedIssuesJson,
+      efficiencyChartStatistics: {
+        avgDaysToCloseIssue: avgDaysTilCloseIssue,
+        avgDaysOpenIssuesWaitingToBeClosed: avgDaysOpenIssuesWaitingToBeClosed
+      },
       chartDataSets: {
         completeness: {
           labels: ['All Issues'],
@@ -196,6 +247,13 @@ class Issues extends Component {
         }
       }
     });
+  }
+
+  dateDiffInDays(a, b) {
+    var utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+    var utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+
+    return Math.floor((utc2 - utc1) / kMSPerDay);
   }
 
   getMonthShortString(month) {
@@ -357,6 +415,29 @@ class Issues extends Component {
     });
   }
 
+  renderEfficiencyChartStatistics(statistics) {
+    return (
+      <Cells>
+        <Cell>
+          <CellBody>
+            Avg. days til close Issue
+          </CellBody>
+          <CellFooter>
+            {statistics.avgDaysToCloseIssue} day/issue
+          </CellFooter>
+        </Cell>
+        <Cell>
+          <CellBody>
+            Avg. open issue (still) waiting to be closed
+          </CellBody>
+          <CellFooter>
+            {statistics.avgDaysOpenIssuesWaitingToBeClosed} day/issue
+          </CellFooter>
+        </Cell>
+      </Cells>
+    );
+  }
+
   render() {
     const {children} = this.props;
 
@@ -402,6 +483,7 @@ class Issues extends Component {
             </FormCell>
             <MediaBox type="text">
               {this.state.chartDataSets.efficiency != null ? this.renderEfficiencyChart(this.state.chartDataSets.efficiency) : ""}
+              {this.renderEfficiencyChartStatistics(this.state.efficiencyChartStatistics)}
             </MediaBox>
           </PanelBody>
         </Panel>
