@@ -74,6 +74,7 @@ class Issues extends Component {
     // open and closed issues datasets
     var openIssuesDataSets = new Array(dates.length);
     var closedIssuesDataSets = new Array(dates.length);
+    var closedIssueCreatedDateDataSets = new Array(dates.length);
 
     // create a dictionary mapping from index to (date+short month string) i.e. '1 Jan'
     var ddates = {};
@@ -83,6 +84,7 @@ class Issues extends Component {
       // initialize all items to 0
       openIssuesDataSets[i] = 0;
       closedIssuesDataSets[i] = 0;
+      closedIssueCreatedDateDataSets[i] = 0;
     }
 
     let completeness = (IssuesManager.closedIssuesJson.length / IssuesManager.totalIssues * 100).toFixed(2);
@@ -103,6 +105,22 @@ class Issues extends Component {
       openIssuesDataSets[ddates[key]]--;
     }
 
+    // closed at date
+    for (var i=0; i<IssuesManager.closedIssuesJson.length; i++) {
+      var item = IssuesManager.closedIssuesJson[i];
+
+      let closedAtDate = new Date(item.closed_at);
+      if (closedAtDate.getFullYear() != year)
+        continue;
+
+      let key = closedAtDate.getDate() + " " + this.getMonthShortString(closedAtDate.getMonth());
+      // if the last index is further than before, then update it
+      if (ddates[key] > lastIndexToSlice)
+        lastIndexToSlice = ddates[key];
+
+      closedIssuesDataSets[ddates[key]]++;
+    }
+    // close issues' create-at date
     for (var i=0; i<IssuesManager.closedIssuesJson.length; i++) {
       var item = IssuesManager.closedIssuesJson[i];
 
@@ -115,7 +133,7 @@ class Issues extends Component {
       if (ddates[key] > lastIndexToSlice)
         lastIndexToSlice = ddates[key];
 
-      closedIssuesDataSets[ddates[key]]++;
+      closedIssueCreatedDateDataSets[ddates[key]]++;
     }
 
     // slice all array
@@ -123,6 +141,7 @@ class Issues extends Component {
     dates = dates.slice(0, endSlicingIndex);
     openIssuesDataSets = openIssuesDataSets.slice(0, endSlicingIndex);
     closedIssuesDataSets = closedIssuesDataSets.slice(0, endSlicingIndex);
+    closedIssueCreatedDateDataSets = closedIssueCreatedDateDataSets.slice(0, endSlicingIndex);
 
     this.setState({ 
       openIssuesJson: IssuesManager.openIssuesJson,
@@ -163,6 +182,15 @@ class Issues extends Component {
               hoverBackgroundColor: 'rgba(33,165,50,0.4)',
               hoverBorderColor: 'rgba(33,165,50,1)',
               data: closedIssuesDataSets
+            },
+            {
+              label: 'Closed issues\' created date',
+              backgroundColor: 'rgba(178,178,178,0.2)',
+              borderColor: 'rgba(178,178,178,1)',
+              borderWidth: 1,
+              hoverBackgroundColor: 'rgba(178,178,178,0.4)',
+              hoverBorderColor: 'rgba(178,178,178,1)',
+              data: closedIssueCreatedDateDataSets
             }
           ]
         }
