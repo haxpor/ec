@@ -9,7 +9,12 @@ import { Panel,
 	MediaBoxInfoMeta,
   Flex,
   FlexItem,
-  Icon
+  Icon,
+  FormCell,
+  CellHeader,
+  CellBody,
+  Label,
+  Select  
 } from 'react-weui';
 
 import Page from '../../core/page/page';
@@ -30,7 +35,8 @@ const IconBox = (props) => (
   </div>
 )
 
-const targetYear = 2017;
+const kGapLastIndex = 3;
+const kSelectBackYears = 2;
 
 const aStyle = {
   color: 'black'
@@ -43,7 +49,8 @@ class Issues extends Component {
     this.state = {
       openIssuesJson: null,
       closedIssuesJson: null,
-      chartDataSets: {}
+      chartDataSets: {},
+      currentYear: 0
     }
   }
 
@@ -51,99 +58,116 @@ class Issues extends Component {
     IssuesManager.fetch()
       .then((result) => {
 
-        // fix the year to be the current year first, we (might) fix this later
-        var dates = this.getDateStringArrayForYear(targetYear);
-
-        // open and closed issues datasets
-        var openIssuesDataSets = new Array(dates.length);
-        var closedIssuesDataSets = new Array(dates.length);
-
-        // create a dictionary mapping from index to (date+short month string) i.e. '1 Jan'
-        var ddates = {};
-        for (var i=0; i<dates.length; i++) {
-          ddates[dates[i]] = i;
-
-          // initialize all items to 0
-          openIssuesDataSets[i] = 0;
-          closedIssuesDataSets[i] = 0;
-        }
-
-        let completeness = (IssuesManager.closedIssuesJson.length / IssuesManager.totalIssues * 100).toFixed(2);
-        var efficiency = {};
-
-        // prepare datasets for efficiency
-        for (var i=0; i<IssuesManager.openIssuesJson.length; i++) {
-          var item = IssuesManager.openIssuesJson[i];
-
-          let createdAtDate = new Date(item.created_at);
-          if (createdAtDate.getFullYear() != targetYear)
-            break;
-
-          let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
-
-          openIssuesDataSets[ddates[key]]--;
-        }
-
-        for (var i=0; i<IssuesManager.closedIssuesJson.length; i++) {
-          var item = IssuesManager.closedIssuesJson[i];
-
-          let createdAtDate = new Date(item.created_at);
-          if (createdAtDate.getFullYear() != targetYear)
-            break;
-
-          let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
-
-          closedIssuesDataSets[ddates[key]]++;
-        }
-
-        this.setState({ 
-          openIssuesJson: IssuesManager.openIssuesJson,
-          closedIssuesJson: IssuesManager.closedIssuesJson,
-          chartDataSets: {
-            completeness: {
-              labels: ['All Issues'],
-              datasets: [
-                {
-                  label: 'Completeness ' + completeness + '%',
-                  backgroundColor: 'rgba(66,244,66,0.2)',
-                  borderColor: 'rgba(66,244,66,1)',
-                  borderWidth: 1,
-                  hoverBackgroundColor: 'rgba(66,244,66,0.4)',
-                  hoverBorderColor: 'rgba(66,244,66,1)',
-                  data: [completeness]
-                }
-              ]
-            },
-
-            efficiency: {
-              labels: dates,
-              datasets: [
-                {
-                  label: 'Open issues',
-                  backgroundColor: 'rgba(219,62,48,0.2)',
-                  borderColor: 'rgba(219,62,48,1)',
-                  borderWidth: 1,
-                  hoverBackgroundColor: 'rgba(219,62,48,0.4)',
-                  hoverBorderColor: 'rgba(219,62,48,1)',
-                  data: openIssuesDataSets
-                },
-                {
-                  label: 'Closed issues',
-                  backgroundColor: 'rgba(33,165,50,0.2)',
-                  borderColor: 'rgba(33,165,50,1)',
-                  borderWidth: 1,
-                  hoverBackgroundColor: 'rgba(33,165,50,0.4)',
-                  hoverBorderColor: 'rgba(33,165,50,1)',
-                  data: closedIssuesDataSets
-                }
-              ]
-            }
-          }
-        });
+        // prepare datasets for current year
+        this.setState({currentYear: new Date().getFullYear()});
+        this.prepareDataSets(this.state.currentYear);
 
       }, (e) => {
         console.log(e + ":" + e.message);
       })
+  }
+
+  prepareDataSets(year) {
+    // fix the year to be the current year first, we (might) fix this later
+    var dates = this.getDateStringArrayForYear(year);
+
+    // open and closed issues datasets
+    var openIssuesDataSets = new Array(dates.length);
+    var closedIssuesDataSets = new Array(dates.length);
+
+    // create a dictionary mapping from index to (date+short month string) i.e. '1 Jan'
+    var ddates = {};
+    for (var i=0; i<dates.length; i++) {
+      ddates[dates[i]] = i;
+
+      // initialize all items to 0
+      openIssuesDataSets[i] = 0;
+      closedIssuesDataSets[i] = 0;
+    }
+
+    let completeness = (IssuesManager.closedIssuesJson.length / IssuesManager.totalIssues * 100).toFixed(2);
+    var efficiency = {};
+    var lastIndexToSlice = dates.length - 1;
+
+    // prepare datasets for efficiency
+    for (var i=0; i<IssuesManager.openIssuesJson.length; i++) {
+      var item = IssuesManager.openIssuesJson[i];
+
+      let createdAtDate = new Date(item.created_at);
+      if (createdAtDate.getFullYear() != year)
+        continue;
+
+      let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
+      lastIndexToSlice = ddates[key];
+
+      openIssuesDataSets[ddates[key]]--;
+    }
+
+    for (var i=0; i<IssuesManager.closedIssuesJson.length; i++) {
+      var item = IssuesManager.closedIssuesJson[i];
+
+      let createdAtDate = new Date(item.created_at);
+      if (createdAtDate.getFullYear() != year)
+        continue;
+
+      let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
+      // if the last index is further than before, then update it
+      if (ddates[key] > lastIndexToSlice)
+        lastIndexToSlice = ddates[key];
+
+      closedIssuesDataSets[ddates[key]]++;
+    }
+
+    // slice all array
+    var endSlicingIndex = lastIndexToSlice + kGapLastIndex;
+    dates = dates.slice(0, endSlicingIndex);
+    openIssuesDataSets = openIssuesDataSets.slice(0, endSlicingIndex);
+    closedIssuesDataSets = closedIssuesDataSets.slice(0, endSlicingIndex);
+
+    this.setState({ 
+      openIssuesJson: IssuesManager.openIssuesJson,
+      closedIssuesJson: IssuesManager.closedIssuesJson,
+      chartDataSets: {
+        completeness: {
+          labels: ['All Issues'],
+          datasets: [
+            {
+              label: 'Completeness ' + completeness + '%',
+              backgroundColor: 'rgba(66,244,66,0.2)',
+              borderColor: 'rgba(66,244,66,1)',
+              borderWidth: 1,
+              hoverBackgroundColor: 'rgba(66,244,66,0.4)',
+              hoverBorderColor: 'rgba(66,244,66,1)',
+              data: [completeness]
+            }
+          ]
+        },
+
+        efficiency: {
+          labels: dates,
+          datasets: [
+            {
+              label: 'Open issues',
+              backgroundColor: 'rgba(219,62,48,0.2)',
+              borderColor: 'rgba(219,62,48,1)',
+              borderWidth: 1,
+              hoverBackgroundColor: 'rgba(219,62,48,0.4)',
+              hoverBorderColor: 'rgba(219,62,48,1)',
+              data: openIssuesDataSets
+            },
+            {
+              label: 'Closed issues',
+              backgroundColor: 'rgba(33,165,50,0.2)',
+              borderColor: 'rgba(33,165,50,1)',
+              borderWidth: 1,
+              hoverBackgroundColor: 'rgba(33,165,50,0.4)',
+              hoverBorderColor: 'rgba(33,165,50,1)',
+              data: closedIssuesDataSets
+            }
+          ]
+        }
+      }
+    });
   }
 
   getMonthShortString(month) {
@@ -284,6 +308,27 @@ class Issues extends Component {
     );
   }
 
+  renderSelectYearForEfficiencyChart(latestYear) {
+    return (
+      <Select defaultValue={latestYear} onChange={e => this.prepareDataSets(e.target.value)}>
+        {this._renderSelectYearItems(latestYear)}
+      </Select>
+    );
+  }
+
+  _renderSelectYearItems(latestYear) {
+    var years = [latestYear];
+    for (var i=1; i<=kSelectBackYears; i++) {
+      years.push(latestYear - i);
+    }
+
+    return years.map((item, i) => {
+      return (
+        <option value={item}>{item}</option>
+      );
+    });
+  }
+
   render() {
     const {children} = this.props;
 
@@ -319,6 +364,14 @@ class Issues extends Component {
             Efficiency Chart
           </PanelHeader>
           <PanelBody>
+            <FormCell>
+              <CellHeader>
+                <Label>Year</Label>
+              </CellHeader>
+              <CellBody>
+                {this.renderSelectYearForEfficiencyChart(this.state.currentYear)}
+              </CellBody>
+            </FormCell>
             <MediaBox type="text">
               {this.state.chartDataSets.efficiency != null ? this.renderEfficiencyChart(this.state.chartDataSets.efficiency) : ""}
             </MediaBox>
