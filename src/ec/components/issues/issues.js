@@ -30,6 +30,8 @@ const IconBox = (props) => (
   </div>
 )
 
+const targetYear = 2017;
+
 const aStyle = {
   color: 'black'
 }
@@ -50,7 +52,7 @@ class Issues extends Component {
       .then((result) => {
 
         // fix the year to be the current year first, we (might) fix this later
-        var dates = this.getDateStringArrayForYear(2017);
+        var dates = this.getDateStringArrayForYear(targetYear);
 
         // open and closed issues datasets
         var openIssuesDataSets = new Array(dates.length);
@@ -74,6 +76,9 @@ class Issues extends Component {
           var item = IssuesManager.openIssuesJson[i];
 
           let createdAtDate = new Date(item.created_at);
+          if (createdAtDate.getFullYear() != targetYear)
+            break;
+
           let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
 
           openIssuesDataSets[ddates[key]]--;
@@ -83,6 +88,9 @@ class Issues extends Component {
           var item = IssuesManager.closedIssuesJson[i];
 
           let createdAtDate = new Date(item.created_at);
+          if (createdAtDate.getFullYear() != targetYear)
+            break;
+
           let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
 
           closedIssuesDataSets[ddates[key]]++;
