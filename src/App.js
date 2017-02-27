@@ -7,7 +7,7 @@ import 'react-weui/lib/react-weui.min.css';
 
 import MainGrid from './ec/components/maingrid';
 
-import { Button } from 'react-weui';
+import { Button, Footer, FooterText } from 'react-weui';
 
 class App extends Component {
   render() {
@@ -18,6 +18,10 @@ class App extends Component {
           <h2>ec</h2>
         </div>
         <MainGrid />
+        <br/><br/>
+        <Footer className="App-footer">
+          <FooterText>Copyright &copy; 2017 wasin.io</FooterText>
+        </Footer>
       </div>
     );
   }
