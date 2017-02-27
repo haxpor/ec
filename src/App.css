@@ -18,6 +18,13 @@
   font-size: large;
 }
 
+.App-footer {
+  position: fixed;
+  bottom: 5px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

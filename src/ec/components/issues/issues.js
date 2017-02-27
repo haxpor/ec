@@ -11,6 +11,9 @@ import { Panel,
   FlexItem,
   Icon,
   FormCell,
+  Cells,
+  Cell,
+  CellFooter,
   CellHeader,
   CellBody,
   Label,
@@ -37,6 +40,7 @@ const IconBox = (props) => (
 
 const kGapLastIndex = 3;
 const kSelectBackYears = 2;
+const kMSPerDay = 1000 * 3600 * 24;
 
 const aStyle = {
   color: 'black'
@@ -50,7 +54,11 @@ class Issues extends Component {
       openIssuesJson: null,
       closedIssuesJson: null,
       chartDataSets: {},
-      currentYear: 0
+      currentYear: 0,
+      efficiencyChartStatistics: {
+        avgDaysToCloseIssue: 0,
+        avgDaysOpenIssuesWaitingToBeClosed: 0
+      }
     }
   }
 
@@ -74,6 +82,7 @@ class Issues extends Component {
     // open and closed issues datasets
     var openIssuesDataSets = new Array(dates.length);
     var closedIssuesDataSets = new Array(dates.length);
+    var closedIssueCreatedDateDataSets = new Array(dates.length);
 
     // create a dictionary mapping from index to (date+short month string) i.e. '1 Jan'
     var ddates = {};
@@ -83,6 +92,7 @@ class Issues extends Component {
       // initialize all items to 0
       openIssuesDataSets[i] = 0;
       closedIssuesDataSets[i] = 0;
+      closedIssueCreatedDateDataSets[i] = 0;
     }
 
     let completeness = (IssuesManager.closedIssuesJson.length / IssuesManager.totalIssues * 100).toFixed(2);
@@ -103,6 +113,22 @@ class Issues extends Component {
       openIssuesDataSets[ddates[key]]--;
     }
 
+    // closed at date
+    for (var i=0; i<IssuesManager.closedIssuesJson.length; i++) {
+      var item = IssuesManager.closedIssuesJson[i];
+
+      let closedAtDate = new Date(item.closed_at);
+      if (closedAtDate.getFullYear() != year)
+        continue;
+
+      let key = closedAtDate.getDate() + " " + this.getMonthShortString(closedAtDate.getMonth());
+      // if the last index is further than before, then update it
+      if (ddates[key] > lastIndexToSlice)
+        lastIndexToSlice = ddates[key];
+
+      closedIssuesDataSets[ddates[key]]++;
+    }
+    // close issues' create-at date
     for (var i=0; i<IssuesManager.closedIssuesJson.length; i++) {
       var item = IssuesManager.closedIssuesJson[i];
 
@@ -115,18 +141,62 @@ class Issues extends Component {
       if (ddates[key] > lastIndexToSlice)
         lastIndexToSlice = ddates[key];
 
-      closedIssuesDataSets[ddates[key]]++;
+      closedIssueCreatedDateDataSets[ddates[key]]++;
     }
 
     // slice all array
-    var endSlicingIndex = lastIndexToSlice + kGapLastIndex;
+    var endSlicingIndex = (lastIndexToSlice + kGapLastIndex) > dates.length-1 ? dates.length-1 : (lastIndexToSlice + kGapLastIndex);
     dates = dates.slice(0, endSlicingIndex);
     openIssuesDataSets = openIssuesDataSets.slice(0, endSlicingIndex);
     closedIssuesDataSets = closedIssuesDataSets.slice(0, endSlicingIndex);
+    closedIssueCreatedDateDataSets = closedIssueCreatedDateDataSets.slice(0, endSlicingIndex);
+
+    // calculate efficiency statistics
+    // the calculation here doesn't limit that issues should be created within this current year
+    // it can be in another year but closed in this year
+    var avgDaysToCloseIssue = 0;
+    var daysTilClosed = [];
+
+    for (var i=0; i<IssuesManager.closedIssuesJson.length; i++) {
+      var item = IssuesManager.closedIssuesJson[i];
+
+      let closedAtDate = new Date(item.closed_at);
+      if (closedAtDate.getFullYear() != year)
+        continue;
+
+      let createdAtDate = new Date(item.created_at);
+      // find difference in days between 2 dates
+      // then save into array
+      daysTilClosed.push(this.dateDiffInDays(createdAtDate, closedAtDate));
+    }
+    var avgDaysTilCloseIssue = daysTilClosed.length > 0 ? (daysTilClosed.reduce(function(prev, curr) {
+      return prev + curr;
+    }) / daysTilClosed.length).toFixed(2) : 0;
+
+    // calculate days for open issues waiting to be closed (still go on)
+    var daysWaitingToBeClosed = [];
+
+    for (var i=0; i<IssuesManager.openIssuesJson.length; i++) {
+      var item = IssuesManager.openIssuesJson[i];
+
+      let createdAtDate = new Date(item.created_at);
+      if (createdAtDate.getFullYear() != year)
+        continue;
+
+      let now = new Date();
+      daysWaitingToBeClosed.push(this.dateDiffInDays(createdAtDate, now));
+    }
+    var avgDaysOpenIssuesWaitingToBeClosed = daysWaitingToBeClosed.length > 0 ? (daysWaitingToBeClosed.reduce(function(prev, curr) {
+      return prev + curr;
+    }) / daysWaitingToBeClosed.length).toFixed(2) : 0;
 
     this.setState({ 
       openIssuesJson: IssuesManager.openIssuesJson,
       closedIssuesJson: IssuesManager.closedIssuesJson,
+      efficiencyChartStatistics: {
+        avgDaysToCloseIssue: avgDaysTilCloseIssue,
+        avgDaysOpenIssuesWaitingToBeClosed: avgDaysOpenIssuesWaitingToBeClosed
+      },
       chartDataSets: {
         completeness: {
           labels: ['All Issues'],
@@ -163,11 +233,27 @@ class Issues extends Component {
               hoverBackgroundColor: 'rgba(33,165,50,0.4)',
               hoverBorderColor: 'rgba(33,165,50,1)',
               data: closedIssuesDataSets
+            },
+            {
+              label: 'Closed issues\' created date',
+              backgroundColor: 'rgba(178,178,178,0.2)',
+              borderColor: 'rgba(178,178,178,1)',
+              borderWidth: 1,
+              hoverBackgroundColor: 'rgba(178,178,178,0.4)',
+              hoverBorderColor: 'rgba(178,178,178,1)',
+              data: closedIssueCreatedDateDataSets
             }
           ]
         }
       }
     });
+  }
+
+  dateDiffInDays(a, b) {
+    var utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+    var utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+
+    return Math.floor((utc2 - utc1) / kMSPerDay);
   }
 
   getMonthShortString(month) {
@@ -324,9 +410,32 @@ class Issues extends Component {
 
     return years.map((item, i) => {
       return (
-        <option value={item}>{item}</option>
+        <option value={item} key={i}>{item}</option>
       );
     });
+  }
+
+  renderEfficiencyChartStatistics(statistics) {
+    return (
+      <Cells>
+        <Cell>
+          <CellBody>
+            Avg. days til close Issue
+          </CellBody>
+          <CellFooter>
+            {statistics.avgDaysToCloseIssue} day/issue
+          </CellFooter>
+        </Cell>
+        <Cell>
+          <CellBody>
+            Avg. open issue (still) waiting to be closed
+          </CellBody>
+          <CellFooter>
+            {statistics.avgDaysOpenIssuesWaitingToBeClosed} day/issue
+          </CellFooter>
+        </Cell>
+      </Cells>
+    );
   }
 
   render() {
@@ -374,6 +483,7 @@ class Issues extends Component {
             </FormCell>
             <MediaBox type="text">
               {this.state.chartDataSets.efficiency != null ? this.renderEfficiencyChart(this.state.chartDataSets.efficiency) : ""}
+              {this.renderEfficiencyChartStatistics(this.state.efficiencyChartStatistics)}
             </MediaBox>
           </PanelBody>
         </Panel>
