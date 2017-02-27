@@ -119,7 +119,7 @@ class Issues extends Component {
     }
 
     // slice all array
-    var endSlicingIndex = lastIndexToSlice + kGapLastIndex;
+    var endSlicingIndex = (lastIndexToSlice + kGapLastIndex) > dates.length-1 ? dates.length-1 : (lastIndexToSlice + kGapLastIndex);
     dates = dates.slice(0, endSlicingIndex);
     openIssuesDataSets = openIssuesDataSets.slice(0, endSlicingIndex);
     closedIssuesDataSets = closedIssuesDataSets.slice(0, endSlicingIndex);
@@ -324,7 +324,7 @@ class Issues extends Component {
 
     return years.map((item, i) => {
       return (
-        <option value={item}>{item}</option>
+        <option value={item} key={i}>{item}</option>
       );
     });
   }
