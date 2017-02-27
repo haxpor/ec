@@ -35,7 +35,7 @@ const IconBox = (props) => (
   </div>
 )
 
-const targetYear = 2017;
+const kGapLastIndex = 3;
 
 const aStyle = {
   color: 'black'
@@ -56,7 +56,8 @@ class Issues extends Component {
     IssuesManager.fetch()
       .then((result) => {
 
-        this.prepareDataSets(targetYear);
+        // prepare datasets for current year
+        this.prepareDataSets(new Date().getFullYear());
 
       }, (e) => {
         console.log(e + ":" + e.message);
@@ -83,6 +84,7 @@ class Issues extends Component {
 
     let completeness = (IssuesManager.closedIssuesJson.length / IssuesManager.totalIssues * 100).toFixed(2);
     var efficiency = {};
+    var lastIndexToSlice = dates.length - 1;
 
     // prepare datasets for efficiency
     for (var i=0; i<IssuesManager.openIssuesJson.length; i++) {
@@ -93,6 +95,7 @@ class Issues extends Component {
         continue;
 
       let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
+      lastIndexToSlice = ddates[key];
 
       openIssuesDataSets[ddates[key]]--;
     }
@@ -105,9 +108,17 @@ class Issues extends Component {
         continue;
 
       let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
+      // if the last index is further than before, then update it
+      if (ddates[key] > lastIndexToSlice)
+        lastIndexToSlice = ddates[key];
 
       closedIssuesDataSets[ddates[key]]++;
     }
+
+    // slice all array
+    dates = dates.slice(0, lastIndexToSlice + kGapLastIndex);
+    openIssuesDataSets = openIssuesDataSets.slice(0, lastIndexToSlice + kGapLastIndex);
+    closedIssuesDataSets = closedIssuesDataSets.slice(0, lastIndexToSlice + kGapLastIndex);
 
     this.setState({ 
       openIssuesJson: IssuesManager.openIssuesJson,
