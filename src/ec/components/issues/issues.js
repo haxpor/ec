@@ -36,6 +36,7 @@ const IconBox = (props) => (
 )
 
 const kGapLastIndex = 3;
+const kSelectBackYears = 2;
 
 const aStyle = {
   color: 'black'
@@ -48,7 +49,8 @@ class Issues extends Component {
     this.state = {
       openIssuesJson: null,
       closedIssuesJson: null,
-      chartDataSets: {}
+      chartDataSets: {},
+      currentYear: 0
     }
   }
 
@@ -57,7 +59,8 @@ class Issues extends Component {
       .then((result) => {
 
         // prepare datasets for current year
-        this.prepareDataSets(new Date().getFullYear());
+        this.setState({currentYear: new Date().getFullYear()});
+        this.prepareDataSets(this.state.currentYear);
 
       }, (e) => {
         console.log(e + ":" + e.message);
@@ -116,9 +119,10 @@ class Issues extends Component {
     }
 
     // slice all array
-    dates = dates.slice(0, lastIndexToSlice + kGapLastIndex);
-    openIssuesDataSets = openIssuesDataSets.slice(0, lastIndexToSlice + kGapLastIndex);
-    closedIssuesDataSets = closedIssuesDataSets.slice(0, lastIndexToSlice + kGapLastIndex);
+    var endSlicingIndex = lastIndexToSlice + kGapLastIndex;
+    dates = dates.slice(0, endSlicingIndex);
+    openIssuesDataSets = openIssuesDataSets.slice(0, endSlicingIndex);
+    closedIssuesDataSets = closedIssuesDataSets.slice(0, endSlicingIndex);
 
     this.setState({ 
       openIssuesJson: IssuesManager.openIssuesJson,
@@ -304,6 +308,27 @@ class Issues extends Component {
     );
   }
 
+  renderSelectYearForEfficiencyChart(latestYear) {
+    return (
+      <Select defaultValue={latestYear} onChange={e => this.prepareDataSets(e.target.value)}>
+        {this._renderSelectYearItems(latestYear)}
+      </Select>
+    );
+  }
+
+  _renderSelectYearItems(latestYear) {
+    var years = [latestYear];
+    for (var i=1; i<=kSelectBackYears; i++) {
+      years.push(latestYear - i);
+    }
+
+    return years.map((item, i) => {
+      return (
+        <option value={item}>{item}</option>
+      );
+    });
+  }
+
   render() {
     const {children} = this.props;
 
@@ -344,10 +369,7 @@ class Issues extends Component {
                 <Label>Year</Label>
               </CellHeader>
               <CellBody>
-                <Select defaultValue="2017" onChange={e => this.prepareDataSets(e.target.value)}>
-                  <option value="2017">2017</option>
-                  <option value="2016">2016</option>
-                </Select>
+                {this.renderSelectYearForEfficiencyChart(this.state.currentYear)}
               </CellBody>
             </FormCell>
             <MediaBox type="text">
