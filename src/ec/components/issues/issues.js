@@ -9,7 +9,12 @@ import { Panel,
 	MediaBoxInfoMeta,
   Flex,
   FlexItem,
-  Icon
+  Icon,
+  FormCell,
+  CellHeader,
+  CellBody,
+  Label,
+  Select  
 } from 'react-weui';
 
 import Page from '../../core/page/page';
@@ -51,99 +56,103 @@ class Issues extends Component {
     IssuesManager.fetch()
       .then((result) => {
 
-        // fix the year to be the current year first, we (might) fix this later
-        var dates = this.getDateStringArrayForYear(targetYear);
-
-        // open and closed issues datasets
-        var openIssuesDataSets = new Array(dates.length);
-        var closedIssuesDataSets = new Array(dates.length);
-
-        // create a dictionary mapping from index to (date+short month string) i.e. '1 Jan'
-        var ddates = {};
-        for (var i=0; i<dates.length; i++) {
-          ddates[dates[i]] = i;
-
-          // initialize all items to 0
-          openIssuesDataSets[i] = 0;
-          closedIssuesDataSets[i] = 0;
-        }
-
-        let completeness = (IssuesManager.closedIssuesJson.length / IssuesManager.totalIssues * 100).toFixed(2);
-        var efficiency = {};
-
-        // prepare datasets for efficiency
-        for (var i=0; i<IssuesManager.openIssuesJson.length; i++) {
-          var item = IssuesManager.openIssuesJson[i];
-
-          let createdAtDate = new Date(item.created_at);
-          if (createdAtDate.getFullYear() != targetYear)
-            break;
-
-          let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
-
-          openIssuesDataSets[ddates[key]]--;
-        }
-
-        for (var i=0; i<IssuesManager.closedIssuesJson.length; i++) {
-          var item = IssuesManager.closedIssuesJson[i];
-
-          let createdAtDate = new Date(item.created_at);
-          if (createdAtDate.getFullYear() != targetYear)
-            break;
-
-          let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
-
-          closedIssuesDataSets[ddates[key]]++;
-        }
-
-        this.setState({ 
-          openIssuesJson: IssuesManager.openIssuesJson,
-          closedIssuesJson: IssuesManager.closedIssuesJson,
-          chartDataSets: {
-            completeness: {
-              labels: ['All Issues'],
-              datasets: [
-                {
-                  label: 'Completeness ' + completeness + '%',
-                  backgroundColor: 'rgba(66,244,66,0.2)',
-                  borderColor: 'rgba(66,244,66,1)',
-                  borderWidth: 1,
-                  hoverBackgroundColor: 'rgba(66,244,66,0.4)',
-                  hoverBorderColor: 'rgba(66,244,66,1)',
-                  data: [completeness]
-                }
-              ]
-            },
-
-            efficiency: {
-              labels: dates,
-              datasets: [
-                {
-                  label: 'Open issues',
-                  backgroundColor: 'rgba(219,62,48,0.2)',
-                  borderColor: 'rgba(219,62,48,1)',
-                  borderWidth: 1,
-                  hoverBackgroundColor: 'rgba(219,62,48,0.4)',
-                  hoverBorderColor: 'rgba(219,62,48,1)',
-                  data: openIssuesDataSets
-                },
-                {
-                  label: 'Closed issues',
-                  backgroundColor: 'rgba(33,165,50,0.2)',
-                  borderColor: 'rgba(33,165,50,1)',
-                  borderWidth: 1,
-                  hoverBackgroundColor: 'rgba(33,165,50,0.4)',
-                  hoverBorderColor: 'rgba(33,165,50,1)',
-                  data: closedIssuesDataSets
-                }
-              ]
-            }
-          }
-        });
+        this.prepareDataSets(targetYear);
 
       }, (e) => {
         console.log(e + ":" + e.message);
       })
+  }
+
+  prepareDataSets(year) {
+    // fix the year to be the current year first, we (might) fix this later
+    var dates = this.getDateStringArrayForYear(year);
+
+    // open and closed issues datasets
+    var openIssuesDataSets = new Array(dates.length);
+    var closedIssuesDataSets = new Array(dates.length);
+
+    // create a dictionary mapping from index to (date+short month string) i.e. '1 Jan'
+    var ddates = {};
+    for (var i=0; i<dates.length; i++) {
+      ddates[dates[i]] = i;
+
+      // initialize all items to 0
+      openIssuesDataSets[i] = 0;
+      closedIssuesDataSets[i] = 0;
+    }
+
+    let completeness = (IssuesManager.closedIssuesJson.length / IssuesManager.totalIssues * 100).toFixed(2);
+    var efficiency = {};
+
+    // prepare datasets for efficiency
+    for (var i=0; i<IssuesManager.openIssuesJson.length; i++) {
+      var item = IssuesManager.openIssuesJson[i];
+
+      let createdAtDate = new Date(item.created_at);
+      if (createdAtDate.getFullYear() != year)
+        continue;
+
+      let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
+
+      openIssuesDataSets[ddates[key]]--;
+    }
+
+    for (var i=0; i<IssuesManager.closedIssuesJson.length; i++) {
+      var item = IssuesManager.closedIssuesJson[i];
+
+      let createdAtDate = new Date(item.created_at);
+      if (createdAtDate.getFullYear() != year)
+        continue;
+
+      let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
+
+      closedIssuesDataSets[ddates[key]]++;
+    }
+
+    this.setState({ 
+      openIssuesJson: IssuesManager.openIssuesJson,
+      closedIssuesJson: IssuesManager.closedIssuesJson,
+      chartDataSets: {
+        completeness: {
+          labels: ['All Issues'],
+          datasets: [
+            {
+              label: 'Completeness ' + completeness + '%',
+              backgroundColor: 'rgba(66,244,66,0.2)',
+              borderColor: 'rgba(66,244,66,1)',
+              borderWidth: 1,
+              hoverBackgroundColor: 'rgba(66,244,66,0.4)',
+              hoverBorderColor: 'rgba(66,244,66,1)',
+              data: [completeness]
+            }
+          ]
+        },
+
+        efficiency: {
+          labels: dates,
+          datasets: [
+            {
+              label: 'Open issues',
+              backgroundColor: 'rgba(219,62,48,0.2)',
+              borderColor: 'rgba(219,62,48,1)',
+              borderWidth: 1,
+              hoverBackgroundColor: 'rgba(219,62,48,0.4)',
+              hoverBorderColor: 'rgba(219,62,48,1)',
+              data: openIssuesDataSets
+            },
+            {
+              label: 'Closed issues',
+              backgroundColor: 'rgba(33,165,50,0.2)',
+              borderColor: 'rgba(33,165,50,1)',
+              borderWidth: 1,
+              hoverBackgroundColor: 'rgba(33,165,50,0.4)',
+              hoverBorderColor: 'rgba(33,165,50,1)',
+              data: closedIssuesDataSets
+            }
+          ]
+        }
+      }
+    });
   }
 
   getMonthShortString(month) {
@@ -319,6 +328,17 @@ class Issues extends Component {
             Efficiency Chart
           </PanelHeader>
           <PanelBody>
+            <FormCell>
+              <CellHeader>
+                <Label>Year</Label>
+              </CellHeader>
+              <CellBody>
+                <Select defaultValue="2017" onChange={e => this.prepareDataSets(e.target.value)}>
+                  <option value="2017">2017</option>
+                  <option value="2016">2016</option>
+                </Select>
+              </CellBody>
+            </FormCell>
             <MediaBox type="text">
               {this.state.chartDataSets.efficiency != null ? this.renderEfficiencyChart(this.state.chartDataSets.efficiency) : ""}
             </MediaBox>
