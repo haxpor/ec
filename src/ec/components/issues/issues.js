@@ -49,7 +49,44 @@ class Issues extends Component {
     IssuesManager.fetch()
       .then((result) => {
 
+        // fix the year to be the current year first, we (might) fix this later
+        var dates = this.getDateStringArrayForYear(2017);
+
+        // open and closed issues datasets
+        var openIssuesDataSets = new Array(dates.length);
+        var closedIssuesDataSets = new Array(dates.length);
+
+        // create a dictionary mapping from index to (date+short month string) i.e. '1 Jan'
+        var ddates = {};
+        for (var i=0; i<dates.length; i++) {
+          ddates[dates[i]] = i;
+
+          // initialize all items to 0
+          openIssuesDataSets[i] = 0;
+          closedIssuesDataSets[i] = 0;
+        }
+
         let completeness = (IssuesManager.closedIssuesJson.length / IssuesManager.totalIssues * 100).toFixed(2);
+        var efficiency = {};
+
+        // prepare datasets for efficiency
+        for (var i=0; i<IssuesManager.openIssuesJson.length; i++) {
+          var item = IssuesManager.openIssuesJson[i];
+
+          let createdAtDate = new Date(item.created_at);
+          let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
+
+          openIssuesDataSets[ddates[key]]--;
+        }
+
+        for (var i=0; i<IssuesManager.closedIssuesJson.length; i++) {
+          var item = IssuesManager.closedIssuesJson[i];
+
+          let createdAtDate = new Date(item.created_at);
+          let key = createdAtDate.getDate() + " " + this.getMonthShortString(createdAtDate.getMonth());
+
+          closedIssuesDataSets[ddates[key]]++;
+        }
 
         this.setState({ 
           openIssuesJson: IssuesManager.openIssuesJson,
@@ -71,7 +108,27 @@ class Issues extends Component {
             },
 
             efficiency: {
-
+              labels: dates,
+              datasets: [
+                {
+                  label: 'Open issues',
+                  backgroundColor: 'rgba(219,62,48,0.2)',
+                  borderColor: 'rgba(219,62,48,1)',
+                  borderWidth: 1,
+                  hoverBackgroundColor: 'rgba(219,62,48,0.4)',
+                  hoverBorderColor: 'rgba(219,62,48,1)',
+                  data: openIssuesDataSets
+                },
+                {
+                  label: 'Closed issues',
+                  backgroundColor: 'rgba(33,165,50,0.2)',
+                  borderColor: 'rgba(33,165,50,1)',
+                  borderWidth: 1,
+                  hoverBackgroundColor: 'rgba(33,165,50,0.4)',
+                  hoverBorderColor: 'rgba(33,165,50,1)',
+                  data: closedIssuesDataSets
+                }
+              ]
             }
           }
         });
@@ -79,6 +136,62 @@ class Issues extends Component {
       }, (e) => {
         console.log(e + ":" + e.message);
       })
+  }
+
+  getMonthShortString(month) {
+    if (month == 0) {
+      return 'Jan';
+    }
+    else if (month == 1) {
+      return 'Feb';
+    }
+    else if (month == 2) {
+      return 'Mar';
+    }
+    else if (month == 3) {
+      return 'Apr';
+    }
+    else if (month == 4) {
+      return 'May';
+    }
+    else if (month == 5) {
+      return 'Jun';
+    }
+    else if (month == 6) {
+      return 'Jul';
+    }
+    else if (month == 7) {
+      return 'Aug';
+    }
+    else if (month == 8) {
+      return 'Sep';
+    }
+    else if (month == 9) {
+      return 'Oct';
+    }
+    else if (month == 10) {
+      return 'Nov';
+    }
+    else if (month == 11) {
+      return 'Dec';
+    }
+  }
+
+  getDateStringArrayForYear(year) {
+    var date = new Date(year, 0, 1);
+    var dates = [];
+
+    // include all days if it's still within the same year
+    while (date.getFullYear() == year) {
+      var d = date.getDate();
+      var mStr = this.getMonthShortString(date.getMonth());
+
+      dates.push(d + " " + mStr);
+
+      // step forward 1 day
+      date.setDate(date.getDate() + 1);
+    }
+    return dates;
   }
 
 	renderLatestFiveOpenIssues(openIssues) {
@@ -119,11 +232,23 @@ class Issues extends Component {
     );
   }
 
-  renderEfficiencyChart() {
+  renderEfficiencyChart(datasets) {
     return (
-      <MediaBox type="text">
-        Test
-      </MediaBox>
+      <Bar
+        data={datasets}
+        width={200}
+        height={120}
+        options={{
+          scales: {
+            xAxes: [{
+              stacked: true
+            }],
+            yAxes: [{
+              stacked: true
+            }]
+          }
+        }}
+      />
     );
   }
 
@@ -186,7 +311,9 @@ class Issues extends Component {
             Efficiency Chart
           </PanelHeader>
           <PanelBody>
-            {this.renderEfficiencyChart()}
+            <MediaBox type="text">
+              {this.state.chartDataSets.efficiency != null ? this.renderEfficiencyChart(this.state.chartDataSets.efficiency) : ""}
+            </MediaBox>
           </PanelBody>
         </Panel>
       </Page>
