@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router'
 import logo from './head.jpg';
 import './App.css';
 
@@ -8,8 +7,7 @@ import 'react-weui/lib/react-weui.min.css';
 
 import MainGrid from './ec/components/maingrid';
 
-import WeUI from 'react-weui';
-const {Button} = WeUI;
+import { Button } from 'react-weui';
 
 class App extends Component {
   render() {
