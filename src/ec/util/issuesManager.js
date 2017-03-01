@@ -12,16 +12,14 @@ class IssuesManager {
   static fetch() {
     return new Promise((resolve, reject) => {
 
-      var prefix = window.location.origin.startsWith("https") ? "https://" : "http://";
-
       if (!this.isParsed) {
-        bfet.get(prefix + "gens.wasin.io/ec/issues_open.json")
+        bfet.get("https://gens.wasin.io/ec/issues_open.json")
         .then((r1) => {
-          bfet.get(prefix + "gens.wasin.io/ec/issues_closed.json").
+          bfet.get("https://gens.wasin.io/ec/issues_closed.json").
             then((r2) => {
               // save all result
-              this.openIssuesJson = r1;
-              this.closedIssuesJson = r2;
+              this.openIssuesJson = r1.response;
+              this.closedIssuesJson = r2.response;
 
               // set received values
               this.totalOpenIssues = this.openIssuesJson.length;
