@@ -11,34 +11,30 @@ class IssuesManager {
 
   static fetch() {
     return new Promise((resolve, reject) => {
+      // request for issues_open
+      bfet.get("https://gens.wasin.io/ec/issues_open.json")
+        .then((result) => {
+          // save result
+          this.openIssuesJson = result.response;
 
-      if (!this.isParsed) {
-        bfet.get("https://gens.wasin.io/ec/issues_open.json")
-        .then((r1) => {
-          bfet.get("https://gens.wasin.io/ec/issues_closed.json").
-            then((r2) => {
-              // save all result
-              this.openIssuesJson = r1.response;
-              this.closedIssuesJson = r2.response;
+          return bfet.get("https://gens.wasin.io/ec/issues_closed.json")
+        }, (e) => {
+          return reject(e);
+        })
+      // request for issues_closed
+      .then((result) => {
+        // save result
+        this.closedIssuesJson = result.response;
 
-              // set received values
-              this.totalOpenIssues = this.openIssuesJson.length;
-              this.totalClosedIssues = this.closedIssuesJson.length;
-              this.totalIssues = this.totalOpenIssues + this.totalClosedIssues;
+        // set received values
+        this.totalOpenIssues = this.openIssuesJson.length;
+        this.totalClosedIssues = this.closedIssuesJson.length;
+        this.totalIssues = this.totalOpenIssues + this.totalClosedIssues;
 
-              // now everything alright, set that we've parsed it
-              this.isParsed = true;
-              return resolve("OK");
-            }, (e2) => {
-              return reject(e2);
-            });
-        }, (e1) => {
-          return reject(e1);
-        });
-      }
-      else {
         return resolve("OK");
-      }
+      }, (e) => {
+        return reject(e);
+      });
     });
   }
 
