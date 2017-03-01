@@ -7,6 +7,7 @@ import contribute_icon from '../../../public/images/ic_group_black_24px.svg';
 import blog_icon from '../../../public/images/ic_insert_drive_file_black_24px.svg';
 
 import IssuesManager from '../util/issuesManager';
+import TooltipTopOverlay from './tooltip/index';
 
 const data = [
   {
@@ -69,7 +70,7 @@ class MainGrid extends Component {
 
         this.setState({data: ndata});
       }, (e) => {
-        console.log(e + ":" + e.message);
+        this.error_tooltip.show(e.message);
       });
   }
 
@@ -77,6 +78,7 @@ class MainGrid extends Component {
     return (
       <div>
         <Grids data={data}/>
+        <TooltipTopOverlay type='warn' ref={(tooltip) => { this.error_tooltip = tooltip; }}/>
       </div>
     );
   }

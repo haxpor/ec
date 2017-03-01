@@ -28,6 +28,8 @@ import '../../core/icons/icons.css';
 import IssuesManager from '../../util/issuesManager';
 import { Bar } from 'react-chartjs-2';
 
+import TooltipTopOverlay from '../tooltip/index';
+
 const IconBox = (props) => (
   <div className="icon-box">
     {props.icon}
@@ -71,7 +73,7 @@ class Issues extends Component {
         this.prepareDataSets(this.state.currentYear);
 
       }, (e) => {
-        console.log(e + ":" + e.message);
+        this.error_tooltip.show(e.message);
       })
   }
 
@@ -487,6 +489,7 @@ class Issues extends Component {
             </MediaBox>
           </PanelBody>
         </Panel>
+        <TooltipTopOverlay type="warn" ref={(tooltip) => {this.error_tooltip = tooltip;}} />
       </Page>
     );
   }

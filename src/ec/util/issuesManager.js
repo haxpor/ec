@@ -1,4 +1,5 @@
 import bfet from 'bfet';
+import Credential from '../user/credential';
 
 // IssuesManager parse issues.json and feed data for components that need it
 class IssuesManager {
@@ -11,42 +12,36 @@ class IssuesManager {
 
   static fetch() {
     return new Promise((resolve, reject) => {
+      // request for issues_open
+      bfet.get("https://api.github.com/issues?filter=created&state=open", null, { 
+        username: Credential.username,
+        password: Credential.password
+      }).then((result) => {
+          // save result
+          this.openIssuesJson = result.response;
 
-      var prefix = window.location.origin.startsWith("https") ? "https://" : "http://";
+          return bfet.get("https://api.github.com/issues?filter=created&state=closed", null, {
+            username: Credential.username,
+            password: Credential.password
+          });
+        }, (e) => {
+          return reject(e);
+        })
+      // request for issues_closed
+      .then((result) => {
+        // save result
+        this.closedIssuesJson = result.response;
 
-      if (!this.isParsed) {
-        bfet.get(prefix + "gens.wasin.io/ec/issues_open.json")
-        .then((r1) => {
-          bfet.get(prefix + "gens.wasin.io/ec/issues_closed.json").
-            then((r2) => {
-              // save all result
-              this.openIssuesJson = r1;
-              this.closedIssuesJson = r2;
+        // set received values
+        this.totalOpenIssues = this.openIssuesJson.length;
+        this.totalClosedIssues = this.closedIssuesJson.length;
+        this.totalIssues = this.totalOpenIssues + this.totalClosedIssues;
 
-              // set received values
-              this.totalOpenIssues = this.openIssuesJson.length;
-              this.totalClosedIssues = this.closedIssuesJson.length;
-              this.totalIssues = this.totalOpenIssues + this.totalClosedIssues;
-
-              // now everything alright, set that we've parsed it
-              this.isParsed = true;
-              return resolve("OK");
-            }, (e2) => {
-              return reject(e2);
-            });
-        }, (e1) => {
-          return reject(e1);
-        });
-      }
-      else {
         return resolve("OK");
-      }
+      }, (e) => {
+        return reject(e);
+      });
     });
-  }
-
-  static forceParse() {
-    this.isParsed = false;
-    this.fetch();
   }
 }
 
