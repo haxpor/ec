@@ -1,4 +1,5 @@
 import bfet from 'bfet';
+import Credential from '../user/credential';
 
 // IssuesManager parse issues.json and feed data for components that need it
 class IssuesManager {
@@ -12,12 +13,17 @@ class IssuesManager {
   static fetch() {
     return new Promise((resolve, reject) => {
       // request for issues_open
-      bfet.get("https://gens.wasin.io/ec/issues_open.json")
-        .then((result) => {
+      bfet.get("https://api.github.com/issues?filter=created&state=open", null, { 
+        username: Credential.username,
+        password: Credential.password
+      }).then((result) => {
           // save result
           this.openIssuesJson = result.response;
 
-          return bfet.get("https://gens.wasin.io/ec/issues_closed.json")
+          return bfet.get("https://api.github.com/issues?filter=created&state=closed", null, {
+            username: Credential.username,
+            password: Credential.password
+          });
         }, (e) => {
           return reject(e);
         })
@@ -36,11 +42,6 @@ class IssuesManager {
         return reject(e);
       });
     });
-  }
-
-  static forceParse() {
-    this.isParsed = false;
-    this.fetch();
   }
 }
 
