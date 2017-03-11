@@ -12,17 +12,17 @@ const data = [
   {
     icon: <img src={issue_icon} alt="issue icon"/>,
     label: 'Issues ...',
-    href: '/issues'
+    to: '/issues'
   },
   {
     icon: <img src={project_icon} alt="project icon"/>,
     label: 'Projects',
-    href: '/projects'
+    to: '/projects'
   },
   {
     icon: <img src={contribute_icon} alt="contribute icon"/>,
     label: 'Contributes',
-    href: '/contributes'
+    to: '/contributes'
   }
 ];
 
