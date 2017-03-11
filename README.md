@@ -4,7 +4,7 @@ projects at http://projects.wasin.io
 
 # Commands Available
 
-* `npm run build` - support only on *nix, and macOS system as it uses `mv` command at the end of successfully built of react then move `build` directory to `docs` for Github page.
+* `npm run build` - support only on *nix, and macOS system as it uses system commands to do the task.
 
 # License
 
