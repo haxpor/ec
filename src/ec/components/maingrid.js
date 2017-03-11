@@ -4,7 +4,6 @@ import { Grids } from 'react-weui';
 import issue_icon from '../../../public/images/ic_assignment_turned_in_black_24px.svg';
 import project_icon from '../../../public/images/ic_apps_black_24px.svg';
 import contribute_icon from '../../../public/images/ic_group_black_24px.svg';
-import blog_icon from '../../../public/images/ic_insert_drive_file_black_24px.svg';
 
 import IssuesManager from '../util/issuesManager';
 import TooltipTopOverlay from './tooltip/index';
@@ -24,11 +23,6 @@ const data = [
     icon: <img src={contribute_icon} alt="contribute icon"/>,
     label: 'Contributes',
     href: '/contributes'
-  },
-  {
-    icon: <img src={blog_icon} alt="blog icon"/>,
-    label: 'Blog',
-    href: 'http://blog.wasin.io'
   }
 ];
 
