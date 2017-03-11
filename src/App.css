@@ -25,6 +25,12 @@
   transform: translate(-50%, -50%);
 }
 
+.site-header {
+  min-height: 60px;
+  background-color: rgba(0,0,0,0.9);
+  position: relative;
+}
+
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

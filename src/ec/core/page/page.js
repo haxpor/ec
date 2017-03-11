@@ -6,6 +6,8 @@
 
 import React from 'react';
 import './page.css';
+import Header from '../../components/header/header';
+import Footer from '../../components/footer/footer';
 
 export default class Page extends React.Component {
     render() {
@@ -13,6 +15,7 @@ export default class Page extends React.Component {
 
         return (
             <section className={`page ${className}`}>
+                <Header />
                 <div className="page__hd">
                     <h1 className="page__title">{title}</h1>
                     <p className="page__desc">{subTitle}</p>
@@ -24,6 +27,7 @@ export default class Page extends React.Component {
                 <div className="page__ft">
                     {footer}
                 </div> : false }
+                <Footer />
             </section>
         );
     }

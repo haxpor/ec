@@ -6,22 +6,20 @@ import 'weui';
 import 'react-weui/lib/react-weui.min.css';
 
 import MainGrid from './ec/components/maingrid';
+import Header from './ec/components/header/header';
+import Footer from './ec/components/footer/footer';
 
-import { Button, Footer, FooterText } from 'react-weui';
+import { Button, FooterText } from 'react-weui';
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>ec</h2>
-        </div>
+      <div>
+      <Header />
+      <div className="App App-Wrapper">
         <MainGrid />
-        <br/><br/>
-        <Footer className="App-footer">
-          <FooterText>Copyright &copy; 2017 wasin.io</FooterText>
-        </Footer>
+      </div>
+      <Footer />
       </div>
     );
   }
