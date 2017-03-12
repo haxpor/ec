@@ -7,22 +7,32 @@ import contribute_icon from '../../../public/images/ic_group_black_24px.svg';
 
 import IssuesManager from '../util/issuesManager';
 import TooltipTopOverlay from './tooltip/index';
+import { Link } from 'react-router';
 
 const data = [
   {
     icon: <img src={issue_icon} alt="issue icon"/>,
     label: 'Issues ...',
-    to: '/issues'
+    component: function(props) { 
+      const { children, ...others } = props;
+      return <Link to='/issues' {...others}>{ children }</Link>; 
+    }
   },
   {
     icon: <img src={project_icon} alt="project icon"/>,
     label: 'Projects',
-    to: '/projects'
+    component: function(props) { 
+      const { children, ...others } = props;
+      return <Link to='/projects' {...others}>{ children }</Link>; 
+    }
   },
   {
     icon: <img src={contribute_icon} alt="contribute icon"/>,
     label: 'Contributes',
-    to: '/contributes'
+    component: function(props) { 
+      const { children, ...others } = props;
+      return <Link to='/contributes' {...others}>{ children }</Link>; 
+    }
   }
 ];
 
