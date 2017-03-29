@@ -584,3 +584,42 @@ tr:nth-child(even) {
     color: #008080; }
   .highlight .il {
     color: #099; }
+
+/**
+ * Page title and description
+ */
+.page__hd {
+  padding: 40px;
+}
+.page__hd .page__title {
+  text-align: left;
+  font-size: 20px;
+  font-weight: 400;
+}
+.page__hd .page__desc {
+  margin-top: 5px;
+  color: #888;
+  text-align: left;
+  font-size: 14px;
+}
+
+/**
+ * Box with icon and text
+ */
+.media-box-icon-text {
+  text-align: center;
+}
+
+.media-box-icon-text {
+  margin: 20px 0px;
+}
+
+.media-box-icon-text__bd .media-box-icon-text__title {
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+.media-box-icon-text__bd .media-box-icon-text__desc {
+  color: #888;
+  font-size: 14px;
+}
