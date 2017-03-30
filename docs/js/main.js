@@ -7,6 +7,12 @@
 var openIssuesJson = null;
 var closedIssuesJson = null;
 
+var ID = {
+	openIssueTotal: "id-openIssue_total",
+	closedIssueTotal: "id-closedIssue_total",
+	latest5Issues: "id-latest_5_issues"
+};
+
 function credential() {
 	return {
 		username: 'haxpor',
@@ -19,7 +25,7 @@ function onLoad(){
 	// load open issues
 	loadOpenIssues().then(function(result) {
 		console.log("open issues is loaded: ", result);
-		updateHTMLElementIDWithValue("id-openissue_total", result.length);
+		updateHTMLElementIDWithValue(ID.openIssueTotal, result.length);
 	}, function(error) {
 		// start over
 		onLoad();
@@ -28,12 +34,18 @@ function onLoad(){
 		// load closed issues
 		loadClosedIssues().then(function(result) {
 			console.log("closed issues is loaded: ", result);
-			updateHTMLElementIDWithValue("id-closedissue_total", result.length);
+			updateHTMLElementIDWithValue(ID.closedIssueTotal, result.length);
+
+			onSuccessfullyLoadAll(openIssuesJson, closedIssuesJson);
 		}, function(error) {
 			// start over
 			onLoad();
 		});
 	})
+}
+
+function onSuccessfullyLoadAll(openIssuesJson, closedIssuesJson) {
+	renderLatest5Issues(openIssuesJson);
 }
 
 function token() {
@@ -94,4 +106,45 @@ function loadClosedIssues() {
 	  	return reject(error);
 	  });
 	});
+}
+
+function renderLatest5Issues(openIssuesJson) {
+	var elem = document.getElementById(ID.latest5Issues);
+
+	if (openIssuesJson == null)
+		return;
+	if (openIssuesJson.length <= 0)
+		return;
+
+	var resultHtml = "";
+	for (var i=0; i<5; i++) {
+		var item = openIssuesJson[i];
+
+		// process to get data
+		// - title
+		var item__title = item.title.replace(/<\/?[^>]+(>|$)/g, "");
+		// - description
+		var item__description = item.body == "" ? "no description" : item.body.replace(/<\/?[^>]+(>|$)/g, "");
+		// - created at
+		var item__localeCreatedAt = new Date(item.created_at).toLocaleDateString();
+		// - updated at
+		var item__localeUpdatedAt = new Date(item.updated_at).toLocaleDateString();
+
+		resultHtml += `
+			<div class="weui-panel__bd">
+				<a href="${item.html_url}" style="color: black;">
+				  <div class="weui-media-box weui-media-box_text">
+				      <h4 class="weui-media-box__title">${item__title}</h4>
+				      <p class="weui-media-box__desc">${item__description}</p>
+				      <ul class="weui-media-box__info">
+				          <li class="weui-media-box__info__meta">${item.repository.name}</li>
+				          <li class="weui-media-box__info__meta">created: ${item__localeCreatedAt}</li>
+				          <li class="weui-media-box__info__meta weui-media-box__info__meta_extra">updated: ${item__localeUpdatedAt}</li>
+				      </ul>
+				  </div>
+				</a>
+			</div>`;
+	}
+
+	elem.insertAdjacentHTML('beforeend', resultHtml);
 }
