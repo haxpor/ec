@@ -586,6 +586,30 @@ tr:nth-child(even) {
     color: #099; }
 
 /**
+ * modify weui's style
+ */
+.weui-panel {
+  margin-top: 10px;
+}
+.weui-media-box:after {
+  content: " ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 1px;
+  border-top: 1px solid #e5e5e5;
+  color: #e5e5e5;
+  -webkit-transform-origin: 0 0;
+  -ms-transform-origin: 0 0;
+  transform-origin: 0 0;
+  -webkit-transform: scaleY(.5);
+  -ms-transform: scaleY(.5);
+  transform: scaleY(.5);
+  left: 15px;
+}
+
+/**
  * Page title and description
  */
 .page__hd {

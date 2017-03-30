@@ -132,17 +132,15 @@ function renderLatest5Issues(openIssuesJson) {
 
 		resultHtml += `
 			<div class="weui-panel__bd">
-				<a href="${item.html_url}" style="color: black;">
-				  <div class="weui-media-box weui-media-box_text">
-				      <h4 class="weui-media-box__title">${item__title}</h4>
-				      <p class="weui-media-box__desc">${item__description}</p>
-				      <ul class="weui-media-box__info">
-				          <li class="weui-media-box__info__meta">${item.repository.name}</li>
-				          <li class="weui-media-box__info__meta">created: ${item__localeCreatedAt}</li>
-				          <li class="weui-media-box__info__meta weui-media-box__info__meta_extra">updated: ${item__localeUpdatedAt}</li>
-				      </ul>
-				  </div>
-				</a>
+			  <div class="weui-media-box weui-media-box_text">
+			      <a href="${item.html_url}" style="color: black;"><h4 class="weui-media-box__title">${item__title}</h4></a>
+			      <p class="weui-media-box__desc">${item__description}</p>
+			      <ul class="weui-media-box__info">
+			          <li class="weui-media-box__info__meta">${item.repository.name}</li>
+			          <li class="weui-media-box__info__meta">created: ${item__localeCreatedAt}</li>
+			          <li class="weui-media-box__info__meta weui-media-box__info__meta_extra">updated: ${item__localeUpdatedAt}</li>
+			      </ul>
+			  </div>
 			</div>`;
 	}
 
