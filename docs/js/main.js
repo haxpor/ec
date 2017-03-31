@@ -81,7 +81,10 @@ function loadOpenIssues(page) {
 	return new Promise(function(resolve, reject) {
 		bfet.get("https://api.github.com/issues?per_page=100&filter=created&state=open&page=" + page, null, { 
 	      username: cred.username,
-	      password: cred.password
+	      password: cred.password,
+	      headers: {
+	      	'Accept': 'application/vnd.github.v3+json'
+	      }
 	  })
 	  .then(function(result) {
 	  	if (result.response.length == 0) {
@@ -115,7 +118,10 @@ function loadClosedIssues(page) {
 	return new Promise(function(resolve, reject) {
 		bfet.get("https://api.github.com/issues?per_page=100&filter=created&state=closed&page=" + page, null, { 
 	      username: cred.username,
-	      password: cred.password
+	      password: cred.password,
+	      headers: {
+	      	'Accept': 'application/vnd.github.v3+json'
+	      }
 	  })
 	  .then(function(result) {
 	  	if (result.response.length == 0) {
