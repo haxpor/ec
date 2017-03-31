@@ -4,12 +4,12 @@
  * - bfet.min.js is loaded before using this script
  */
 
-var openIssuesJson = null;
-var closedIssuesJson = null;
+var openIssuesJson = [];
+var closedIssuesJson = [];
 
 var ID = {
-	openIssueTotal: "id-openIssue_total",
-	closedIssueTotal: "id-closedIssue_total",
+	openIssuesTotal: "id-openIssue_total",
+	closedIssuesTotal: "id-closedIssue_total",
 	latest5Issues: "id-latest_5_issues"
 };
 
@@ -22,19 +22,21 @@ function credential() {
 }
 
 function onLoad(){
-	// load open issues
-	loadOpenIssues().then(function(result) {
-		console.log("open issues is loaded: ", result);
-		updateHTMLElementIDWithValue(ID.openIssueTotal, result.length);
+	// load open issues starting at 1st page
+	loadOpenIssues(1).then(function(result) {
+		// save returned value
+		openIssuesJson = result;
+		updateHTMLElementIDWithValue(ID.openIssuesTotal, result.length);
 	}, function(error) {
 		// start over
 		onLoad();
 	})
 	.then(function() {
-		// load closed issues
-		loadClosedIssues().then(function(result) {
-			console.log("closed issues is loaded: ", result);
-			updateHTMLElementIDWithValue(ID.closedIssueTotal, result.length);
+		// load closed issues starting at 1st page
+		loadClosedIssues(1).then(function(result) {
+			// save returned value
+			closedIssuesJson = result;
+			updateHTMLElementIDWithValue(ID.closedIssuesTotal, result.length);
 
 			onSuccessfullyLoadAll(openIssuesJson, closedIssuesJson);
 		}, function(error) {
@@ -72,36 +74,68 @@ function updateHTMLElementIDWithValue(id, value) {
 	}
 }
 
-function loadOpenIssues() {
+function loadOpenIssues(page) {
 	// get credential
 	var cred = credential();
 
 	return new Promise(function(resolve, reject) {
-		bfet.get("https://api.github.com/issues?filter=created&state=open", null, { 
-        username: cred.username,
-        password: cred.password
+		bfet.get("https://api.github.com/issues?per_page=100&filter=created&state=open&page=" + page, null, { 
+	      username: cred.username,
+	      password: cred.password
 	  })
 	  .then(function(result) {
-	  	openIssuesJson = result.response;
-	  	return resolve(openIssuesJson);
+	  	if (result.response.length == 0) {
+	  		return resolve(null);
+	  	}
+	  	else {
+	  		loadOpenIssues(page + 1)
+	  			.then(function(_r) {
+	  				var rArray;
+	  				if (_r != null) {
+	  					rArray = result.response.concat(_r.response);
+	  				}
+	  				else {
+	  					rArray = result.response;
+	  				}
+	  				return resolve(rArray);
+	  			}, function(_e) {
+	  				return reject(error);
+	  			});
+	  	}
 	  }, function(error) {
 	  	return reject(error);
 	  });
 	});
 }
 
-function loadClosedIssues() {
+function loadClosedIssues(page) {
 	// get credential
 	var cred = credential();
 
 	return new Promise(function(resolve, reject) {
-		bfet.get("https://api.github.com/issues?filter=created&state=closed", null, { 
-        username: cred.username,
-        password: cred.password
+		bfet.get("https://api.github.com/issues?per_page=100&filter=created&state=closed&page=" + page, null, { 
+	      username: cred.username,
+	      password: cred.password
 	  })
 	  .then(function(result) {
-	  	closedIssuesJson = result.response;
-	  	return resolve(closedIssuesJson);
+	  	if (result.response.length == 0) {
+	  		return resolve(null);
+	  	}
+	  	else {
+	  		loadOpenIssues(page + 1)
+	  			.then(function(_r) {
+	  				var rArray;
+	  				if (_r != null) {
+	  					rArray = result.response.concat(_r.response);
+	  				}
+	  				else {
+	  					rArray = result.response;
+	  				}
+	  				return resolve(rArray);
+	  			}, function(_e) {
+	  				return reject(error);
+	  			});
+	  	}
 	  }, function(error) {
 	  	return reject(error);
 	  });
