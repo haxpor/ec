@@ -72,13 +72,13 @@
       <div class="weui-panel__hd">Efficiency Chart</div>
       <div class="weui-panel__bd">
         <div class="weui-cell">
-          <div class="weui-cell__hd">
+          <div class="weui-cell__bd">
             <div>
               <label class="weui-label">Year</label>
             </div>
           </div>
-          <div class="weui-cell_bd">
-            <select class="weui-select" id="id-year_select_options" onchange="renderEfficiencyChart(document.getElementById('id-year_select_options').value, openIssuesJson, closedIssuesJson);">
+          <div class="weui-cell_ft">
+            <select class="weui-select" id="id-year_select_options" onchange="renderEfficiencyChartSection(document.getElementById('id-year_select_options').value, openIssuesJson, closedIssuesJson);">
               <option value="2017">2017</option>
               <option value="2016">2016</option>
               <option value="2015">2015</option>
@@ -86,7 +86,21 @@
           </div>
         </div>
         <div class="weui-cell">
-          <canvas id="id-efficiency_chart" width="200" height="70"></canvas>
+          <canvas id="id-efficiency_chart" width="200" height="150"></canvas>
+        </div>
+        <div class="weui-cell">
+          <div class="weui-cell__bd">
+            Avg. days til close issue
+          </div>
+          <div class="weui-cell__ft" id="id-efficiency_chart_stats1">
+          </div>
+        </div>
+        <div class="weui-cell">
+          <div class="weui-cell__bd">
+            Avg. open issue (still) waiting to be closed
+          </div>
+          <div class="weui-cell__ft" id="id-efficiency_chart_stats2">
+          </div>
         </div>
       </div>
     </div>

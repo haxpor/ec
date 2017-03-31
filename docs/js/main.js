@@ -5,6 +5,8 @@
  */
 
 const kGapLastIndex = 3;
+const kMSPerDay = 1000 * 3600 * 24;
+
 var openIssuesJson = [];
 var closedIssuesJson = [];
 
@@ -13,7 +15,9 @@ var ID = {
 	closedIssuesTotal: 'id-closedIssue_total',
 	latest5Issues: 'id-latest_5_issues',
 	completenessChart: 'id-completeness_chart',
-	efficiencyChart: 'id-efficiency_chart'
+	efficiencyChart: 'id-efficiency_chart',
+	efficiencyChartStats1: 'id-efficiency_chart_stats1',
+	efficiencyChartStats2: 'id-efficiency_chart_stats2'
 };
 
 function credential() {
@@ -55,7 +59,7 @@ function onSuccessfullyLoadAll(openIssuesJson, closedIssuesJson) {
 
 	renderLatest5Issues(openIssuesJson);
 	renderCompletenessChart(openIssuesJson, closedIssuesJson);
-	renderEfficiencyChart(currentYear, openIssuesJson, closedIssuesJson);
+	renderEfficiencyChartSection(currentYear, openIssuesJson, closedIssuesJson);
 }
 
 function token() {
@@ -410,6 +414,53 @@ function efficiencyChartDatasets(year, openIssuesJson, closedIssuesJson) {
   };
 }
 
+function calculateEfficiencyStatistics(year, openIssuesJson, closedIssuesJson) {
+	// calculate efficiency statistics
+  // the calculation here doesn't limit that issues should be created within this current year
+  // it can be in another year but closed in this year
+  var avgDaysToCloseIssue = 0;
+  var daysTilClosed = [];
+
+  for (var i=0; i<closedIssuesJson.length; i++) {
+    var item = closedIssuesJson[i];
+
+    let closedAtDate = new Date(item.closed_at);
+    if (closedAtDate.getFullYear() != year)
+      continue;
+
+    let createdAtDate = new Date(item.created_at);
+    // find difference in days between 2 dates
+    // then save into array
+    daysTilClosed.push(dateDiffInDays(createdAtDate, closedAtDate));
+  }
+  var avgDaysTilCloseIssue = daysTilClosed.length > 0 ? (daysTilClosed.reduce(function(prev, curr) {
+    return prev + curr;
+  }) / daysTilClosed.length).toFixed(2) : 0;
+
+  // calculate days for open issues waiting to be closed (still go on)
+  var daysWaitingToBeClosed = [];
+
+  for (var i=0; i<openIssuesJson.length; i++) {
+    var item = openIssuesJson[i];
+
+    let createdAtDate = new Date(item.created_at);
+    if (createdAtDate.getFullYear() != year)
+      continue;
+
+    let now = new Date();
+    daysWaitingToBeClosed.push(dateDiffInDays(createdAtDate, now));
+  }
+  var avgDaysOpenIssuesWaitingToBeClosed = daysWaitingToBeClosed.length > 0 ? (daysWaitingToBeClosed.reduce(function(prev, curr) {
+    return prev + curr;
+  }) / daysWaitingToBeClosed.length).toFixed(2) : 0;
+
+  // return as object
+  return {
+  	stats1: avgDaysTilCloseIssue + " day/issue",
+  	stats2: avgDaysOpenIssuesWaitingToBeClosed + " day/issue"
+  };
+}
+
 function renderEfficiencyChart(year, openIssuesJson, closedIssuesJson) {
 	if (openIssuesJson == null)
 		return;
@@ -435,4 +486,16 @@ function renderEfficiencyChart(year, openIssuesJson, closedIssuesJson) {
 		data: efficiencyChartDatasets(year, openIssuesJson, closedIssuesJson),
 		options: options
 	});
+}
+
+function updateEfficiencyStatistics(year, openIssuesJson, closedIssuesJson) {
+	var values = calculateEfficiencyStatistics(year, openIssuesJson, closedIssuesJson);
+	console.log(values);
+	updateHTMLElementIDWithValue(ID.efficiencyChartStats1, values.stats1);
+	updateHTMLElementIDWithValue(ID.efficiencyChartStats2, values.stats2);
+} 
+
+function renderEfficiencyChartSection(year, openIssuesJson, closedIssuesJson) {
+	renderEfficiencyChart(year, openIssuesJson, closedIssuesJson);
+	updateEfficiencyStatistics(year, openIssuesJson, closedIssuesJson);
 }
