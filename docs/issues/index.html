@@ -68,6 +68,29 @@
       </div>
     </div>
 
+    <div class="weui-panel">
+      <div class="weui-panel__hd">Efficiency Chart</div>
+      <div class="weui-panel__bd">
+        <div class="weui-cell">
+          <div class="weui-cell__hd">
+            <div>
+              <label class="weui-label">Year</label>
+            </div>
+          </div>
+          <div class="weui-cell_bd">
+            <select class="weui-select" id="id-year_select_options" onchange="renderEfficiencyChart(document.getElementById('id-year_select_options').value, openIssuesJson, closedIssuesJson);">
+              <option value="2017">2017</option>
+              <option value="2016">2016</option>
+              <option value="2015">2015</option>
+            </select>
+          </div>
+        </div>
+        <div class="weui-cell">
+          <canvas id="id-efficiency_chart" width="200" height="70"></canvas>
+        </div>
+      </div>
+    </div>
+
     <footer class="site-footer">
       <div class="wrapper">
         <h2 class="footer-heading">Wasin's Projects</h2>
