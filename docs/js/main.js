@@ -8,9 +8,10 @@ var openIssuesJson = [];
 var closedIssuesJson = [];
 
 var ID = {
-	openIssuesTotal: "id-openIssue_total",
-	closedIssuesTotal: "id-closedIssue_total",
-	latest5Issues: "id-latest_5_issues"
+	openIssuesTotal: 'id-openIssue_total',
+	closedIssuesTotal: 'id-closedIssue_total',
+	latest5Issues: 'id-latest_5_issues',
+	completenessChart: 'id-completeness_chart'
 };
 
 function credential() {
@@ -48,6 +49,7 @@ function onLoad(){
 
 function onSuccessfullyLoadAll(openIssuesJson, closedIssuesJson) {
 	renderLatest5Issues(openIssuesJson);
+	renderCompletenessChart(openIssuesJson, closedIssuesJson);
 }
 
 function token() {
@@ -185,4 +187,35 @@ function renderLatest5Issues(openIssuesJson) {
 	}
 
 	elem.insertAdjacentHTML('beforeend', resultHtml);
+}
+
+function renderCompletenessChart(openIssuesJson, closedIssuesJson) {
+
+	if (openIssuesJson == null)
+		return;
+	if (closedIssuesJson == null)
+		return;
+	if (openIssuesJson.length == 0 && closedIssuesJson.length == 0)
+		return;
+
+	var ctx = document.getElementById(ID.completenessChart);
+	var completenessValue = (closedIssuesJson.length / (openIssuesJson.length+closedIssuesJson.length)*100).toFixed(2);
+	var data = {
+    labels: ["Completeness"],
+    datasets: [
+        {
+            label: 'Completeness',
+            backgroundColor: ['rgba(66,244,66,0.2)'],
+            borderColor: ['rgba(66,244,66,1)'],
+            hoverBackgroundColor: ['rgba(66,244,66,0.4)'],
+            hoverBorderColor: ['rgba(66,244,66,1)'],
+            borderWidth: 1,
+            data: [completenessValue],
+        }
+    ]
+};
+	var chart = new Chart(ctx, {
+	  type: 'bar',
+	  data: data
+	});
 }
